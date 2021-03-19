@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.0.0/dist/echarts.min.js"></script>
+</head>
+
+<body>
+    <div id="title"></div>
+    <div id="echart" style="width: 100vw; height: 100vh;"></div>
+</body>
+
+<script>
+    const leavesOption = {
+        emphasis: {
+            label: {
+                formatter: params => {  // 富文本展示表格数据
+                    return params.name + '\n\n' + params.name.split(/\s+/).join('\n');
+                }
+            },
+        },
+        label: {
+            color: 'white',
+            backgroundColor: '#ff8f77',
+            borderColor: '#ff4821',
+        },
+    }
+
+    var myChart;
+    var nodeCnt = 0;
+    var nodeArr;
+    var treeData;
+    function drawTree(s, title) {
+        s = '[473,0,0,0,160,317,0,0,577,620,0,0,21,80,124,145,160,195,238,0,317,343,380,390,473,492,525,551,577,607,0,0,620,624,684,0]'
+        document.getElementById('title').innerHTML = `<h4>${title}</h4>`;
+        if (s.length == 0) {
+            return;
+        }
+        nodeArr = JSON.parse(s);
+        nodeCnt = nodeArr.length;
+        console.log(nodeCnt);
+        let minVal, maxVal;
+        for (let i = nodeArr.length - 1; i >= 0; i--) {
+            if (nodeArr[i] > 0) {
+                maxVal = nodeArr[i];
+                break;
+            }
+        }
+        minVal = maxVal + 1;
+        for (let i = nodeArr.length - 1; i > 0; i--) {
+            if (nodeArr[i] > 0) {
+                if (nodeArr[i] < minVal) {
+                    minVal = nodeArr[i];
+                } else {
+                    break;
+                }
+            }
+        }
+
+        treeData = dfsTree(0, minVal, maxVal);
+        drawCharts();
+    }
+
+    drawTree();
+
+    function dfsTree(pos, minVal, maxVal) {
+        let tArr = [minVal], tVal;
+        for (let i = pos; i < pos + 4; i++) {
+            tVal = nodeArr[i];
+            if (tVal > 0) {
+                tArr.push(tVal);
+            } else {
+                break;
+            }
+        }
+        tArr.push(maxVal);
+
+        // 遍历每个索引，判断是否仍有子树（即数组之后是否还出现了相同的值）
+        let curMin, curMax, flag, sonArr = [];
+        for (let i = 1; i < tArr.length; i++) {
+            curMin = tArr[i - 1];
+            curMax = tArr[i];
+            flag = 0;
+            for (let j = pos + i + 1; j < nodeCnt; j++) {
+                if (nodeArr[j] >= curMin && nodeArr[j] < curMax) {    // 找到子树
+                    sonArr.push(dfsTree(j, curMin, curMax));
+                    flag = 1;
+                    break;
+                }
+            }
+            if (!flag) {
+                break;
+            }
+        }
+
+        tArr = tArr.slice(1, tArr.length - 1);
+
+        let name;
+        if (sonArr.length > 0) {
+            name = sonArr.reduce((tot, node, idx) => {
+                if (idx > 0) { tot += '   ' }
+                tot += node.name.split(/\s+/)[0];
+                return tot;
+            }, '');
+        } else {
+            name = tArr.reduce((tot, val, idx) => {
+                if (idx > 0) { tot += '   ' }
+                tot += val;
+                return tot;
+            }, '');
+        }
+
+        let retObj = {
+            name: name,
+            children: sonArr
+        };
+        if (sonArr.length == 0) {
+            retObj.emphasis = leavesOption.emphasis;
+            retObj.label = leavesOption.label;
+            // retObj.value = tArr
+        }
+        return retObj;
+    }
+
+    function drawLine(path, flag) {
+        if (!flag) {
+            alert(`没有找到！`);
+            drawCharts();
+            return;
+        }
+        let arr = path.trim().split(/ +/).slice(1);
+        let _treeData = JSON.parse(JSON.stringify(treeData));
+        let tnode = treeData;
+        let idx;
+        for (let i = 0; i < arr.length; i++) {
+            idx = tnode.children.findIndex(o => o.name.indexOf(arr[i]) != -1);
+            console.log(tnode.children, idx);
+            tnode.children[idx].lineStyle = {
+                color: '#ff0000',
+            }
+            tnode = tnode.children[idx];
+        }
+        drawCharts();
+        treeData = _treeData;
+    }
+
+    function drawCharts() {
+        myChart = echarts.init(document.getElementById('echart'));
+        myChart.showLoading();
+
+        myChart.setOption(option = {
+            tooltip: {
+                trigger: 'item',
+                triggerOn: 'mousemove'
+            },
+            series: [
+                {
+                    type: 'tree',
+                    data: [treeData],
+
+                    left: '2%',
+                    right: '2%',
+                    top: '8%',
+                    bottom: '20%',
+
+                    symbol: 'none',  // 隐藏符号，避免遮挡文字
+                    orient: 'vertical', // 树形的方向
+                    initialTreeDepth: -1,   // 初始深度
+                    expandAndCollapse: true,    // 是否可折叠或展开
+
+                    label: {
+                        position: 'inside',
+                        verticalAlign: 'middle',
+                        align: 'center',
+                        rotate: 0,
+                        fontSize: 13,   // 文字大小
+                        color: '#333333',   // 文字颜色
+                        backgroundColor: '#f5f7fa', // 文字背景
+                        padding: 10,
+                        borderColor: '#bdbdbd',
+                        borderWidth: .5,
+                        borderRadius: 10,
+                    },
+
+                    lineStyle: {
+                        curveness: 0,   // 树路径的曲线程度
+                    },
+
+                    // 高亮设置
+                    // emphasis: {
+                    //     focus: 'descendant',    // 聚焦后代节点
+                    // },
+
+                    // 提示信息
+                    tooltip: {
+                        formatter: '{c}'
+                    },
+
+                    roam: true, // 开启缩放和平移
+                }
+            ],
+
+            animation: true,
+            animationThreshold: 1500,
+        });
+
+        myChart.hideLoading();
+        myChart.resize();
+    }
+</script>
+
+</html>

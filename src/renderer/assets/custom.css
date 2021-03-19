@@ -1,0 +1,27 @@
+:root{
+    --color-link: #2d8cf0
+}
+
+.treepage-cmd .ivu-cell-main {
+    display: block;
+}
+
+#build-new-table .ivu-table-wrapper,
+#build-new-table tr td:nth-of-type(3) .ivu-table-cell {
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+/* 左侧菜单背景 */
+.ivu-layout-sider {
+    background: #fff;
+}
+
+.icon {
+    width: 18px;
+    height: 18px;
+    vertical-align: middle;
+    fill: currentColor;
+    overflow: hidden;
+}

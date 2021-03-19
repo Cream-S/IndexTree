@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.0.0/dist/echarts.min.js"></script>
+  <script src="./BPlusTree.js"></script>
+  <script src="./ECharts.js"></script>
+  <title>Document</title>
+  <style>
+    .debug {
+      position: fixed;
+      left: 8px;
+      top: 8px;
+      z-index: 999;
+    }
+
+    .debug input {
+      display: block;
+      width: 200px;
+      padding: 5px 10px;
+      margin: 5px 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="demo">
+    <div class="debug">
+      <strong>{{ strTitle }}</strong>
+      <input ref="inDeg" type="text" placeholder="阶数，默认3阶..." v-model="strDeg" @keyup.enter="trDeg">
+      <input ref="inIns" type="text" placeholder="插入，多个数据用空格分隔..." v-model="strIns" @keyup.enter="trIns">
+      <input ref="inDel" type="text" placeholder="删除..." v-model="strDel" @keyup.enter="trDel">
+    </div>
+    <div id="echart" style="width: 100vw; height: 100vh;"></div>
+  </div>
+</body>
+
+<script>
+  var myChart;
+  var vm = new Vue({
+    el: '#demo',
+    data: {
+      strTitle: '3-Degree',
+      strIns: '',
+      strDel: '',
+      strDeg: '',
+      tree: null,
+    },
+    mounted() {
+      this.tree = new BPlusTree();
+    },
+    methods: {
+      trIns() {
+        this.strIns.trim().split(/\s+/).forEach(v => {
+          this.tree.insertElement(parseInt(v))
+        })
+        this.trPrint();
+        this.strIns = ''
+        this.$refs.inIns.focus()
+      },
+      trDel() {
+        this.tree.deleteElement(parseInt(this.strDel))
+        this.trPrint();
+        this.strDel = ''
+        this.$refs.inDel.focus()
+      },
+      trDeg() {
+        let strDeg = parseInt(this.strDeg) || 3;
+        if (strDeg < 3) {
+          strDeg = 3;
+        }
+        this.strTitle = `${strDeg}-Degree`
+        this.tree.changeDegree(strDeg)
+        this.tree.clearTree()
+        this.trPrint()
+        this.strDeg = ''
+      },
+      trPrint() {
+        this.treeData = this.dfsTree(this.tree.treeRoot);
+        this.drawTree();
+      },
+      dfsTree(tree) {
+        if (tree == null) {
+          return {}
+        }
+        let nameArr = [];
+        for (let i = 0; i < tree.numKeys; i++) {
+          nameArr.push(tree.keys[i]);
+        }
+        let sonArr = [];
+        if (!tree.isLeaf) {
+          for (let i = 0; i < tree.numKeys; i++) {
+            sonArr.push(this.dfsTree(tree.children[i]))
+          }
+        }
+        let ret = {
+          name: nameArr.join('  '),
+          children: sonArr,
+        };
+        return ret;
+      },
+      drawTree() {
+        console.log(this.treeData);
+        if (myChart && myChart.dispose) {
+          myChart.dispose();
+        }
+        myChart = echarts.init(document.getElementById('echart'))
+        myChart.showLoading();
+
+        echartOption.series[0].data = [this.treeData];
+        console.log(echartOption);
+        myChart.setOption(option = echartOption);
+        myChart.hideLoading();
+        myChart.resize();
+      }
+    }
+  })
+</script>
+
+</html>
