@@ -1,4 +1,7 @@
-{"_id":"4545","type":0,"indexName":"hjhjl","primaryKey":"hjhjl","col":[{"colName":"hjhjl","colType":"varchar","length":"10","notNull":1,"unique":1}]}
+{"_id":"admin","type":0,"indexName":"撒","primaryKey":"撒","col":[{"colName":"撒","colType":"varchar","length":"10","notNull":1,"unique":1}]}
+{"_id":"class","type":0,"indexName":"class","primaryKey":"class","col":[{"colName":"class","colType":"varchar","length":"10","notNull":1,"unique":1}]}
+{"_id":"student","type":0,"indexName":"三通","primaryKey":"三通","col":[{"colName":"三通","colType":"varchar","length":"10","notNull":1,"unique":1}]}
+{"_id":"subject","type":0,"indexName":"subject","primaryKey":"subject","col":[{"colName":"subject","colType":"varchar","length":"10","notNull":1,"unique":1}]}
 {"_id":"商品表","type":1,"indexName":"商品编号","primaryKey":"商品编号","col":[{"colName":"商品编号","colType":"varchar","length":20,"notNull":1,"unique":1},{"colName":"商品名称","colType":"varchar","length":32,"notNull":1,"unique":0},{"colName":"商品类型","colType":"varchar","length":20,"notNull":1,"unique":0},{"colName":"单价","colType":"int","length":0,"notNull":1,"unique":0},{"colName":"数量","colType":"int","length":0,"notNull":1,"unique":0}]}
 {"_id":"学生表","type":1,"indexName":"学号","primaryKey":"学号","col":[{"colName":"学号","colType":"varchar","length":32,"notNull":1,"unique":1},{"colName":"姓名","colType":"varchar","length":30,"notNull":1,"unique":0},{"colName":"年龄","colType":"int","length":0,"notNull":1,"unique":0}]}
 {"_id":"用户表","type":1,"indexName":"账号","primaryKey":"账号","col":[{"colName":"账号","colType":"varchar","length":32,"notNull":1,"unique":1},{"colName":"用户名","colType":"varchar","length":30,"notNull":1,"unique":0},{"colName":"密码","colType":"varchar","length":20,"notNull":1,"unique":0}]}

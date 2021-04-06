@@ -26,11 +26,11 @@
         @click="dropTable"
         style="margin-right: 60px"
       >
-        Drop
+        删除
         <i class="fad fa-trash-alt"></i>
       </Button>
       <Button size="large" type="primary" @click="launch">
-        Launch
+        进入
         <i class="fad fa-arrow-alt-to-right"></i>
       </Button>
       <!-- <Button size="large" type="primary" @click="test">test</Button> -->

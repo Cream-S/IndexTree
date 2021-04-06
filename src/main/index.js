@@ -22,6 +22,7 @@ function createWindow() {
     height: 563,
     useContentSize: true,
     width: 1000,
+    title: "索引可视化实验教学平台",
     webPreferences: { // 添加该属性
       nodeIntegration: true,
       enableRemoteModule: true
@@ -54,7 +55,7 @@ ipcMain.on('create-modal', () => {
   childWin = new BrowserWindow({
     width: 1200,
     height: 900,
-    title: '历史',
+    title: '操作记录',
     modal: true,
     parent: mainWindow,
     webPreferences: {
