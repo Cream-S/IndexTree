@@ -39,7 +39,7 @@ export default {
         this.mode = name;
         this.$refs.layout.headerName = name;
       } else {
-        this.$Message.error(`第${errLine + 1}行未填写完整`);
+        // this.$Message.error(`第${errLine + 1}行未填写完整`);
       }
     },
     insertIntoTree(val) {

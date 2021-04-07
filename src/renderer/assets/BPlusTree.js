@@ -97,16 +97,16 @@ BPlusTree.prototype.deleteTree = function (tree) {
         tree.children[i] == null;
       }
     }
+    /* todo: ts 是什么 */
+    // this.cmd("Delete tree " + ts);
+    // db.oprateRecord.insert({
+    //   _id: this.this.opId++,
+    //   oprate: "Delete tree",
+    //   val: "",
 
-    this.cmd("Delete tree " + ts);
-    db.oprateRecord.insert({
-      _id: this.this.opId++,
-      oprate: "Delete tree",
-      val: "",
-
-    }, (err, doc) => {
-      console.log(err, doc)
-    })
+    // }, (err, doc) => {
+    //   console.log(err, doc)
+    // })
   }
 }
 

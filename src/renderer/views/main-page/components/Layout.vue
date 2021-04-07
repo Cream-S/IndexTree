@@ -84,7 +84,6 @@ export default {
   margin-right: 20px;
 }
 .layout-goback {
-  width: 50px;
   float: right;
   color: #fff;
   text-align: center;

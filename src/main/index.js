@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, Menu, globalShortcut } from 'electron'
 
 
 /**
@@ -14,21 +14,27 @@ const winURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080`
   : `file://${__dirname}/index.html`
 
+function configWindow() {
+  Menu.setApplicationMenu(null)
+}
+
 function createWindow() {
+  configWindow();
   /**
    * Initial window options
    */
   mainWindow = new BrowserWindow({
     height: 563,
-    useContentSize: true,
     width: 1000,
+    useContentSize: true,
+    resizable: false,
     title: "索引可视化实验教学平台",
     webPreferences: { // 添加该属性
       nodeIntegration: true,
       enableRemoteModule: true
     },
   })
-
+  mainWindow.maximize()
   mainWindow.loadURL(winURL)
 
   mainWindow.on('closed', () => {
@@ -55,6 +61,7 @@ ipcMain.on('create-modal', () => {
   childWin = new BrowserWindow({
     width: 1200,
     height: 900,
+    resizable: false,
     title: '操作记录',
     modal: true,
     parent: mainWindow,
@@ -63,6 +70,7 @@ ipcMain.on('create-modal', () => {
       webSecurity: false
     }
   })
+  childWin.maximize();
   childWin.loadURL(winURL + '#/MainPage/History');
   childWin.on('closed', () => {
     childWin = null;

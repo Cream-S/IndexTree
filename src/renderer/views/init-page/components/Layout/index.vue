@@ -1,11 +1,15 @@
 <template>
   <div class="layout">
     <Layout style="height: 100vh">
-      <Sider>
-        <slot name="sider"></slot>
-      </Sider>
+      <Header style="height: 120px">
+        <slot name="header"></slot>
+      </Header>
       <Layout>
+        <Sider style="overflow-y: scroll">
+          <slot name="sider"></slot>
+        </Sider>
         <Content
+          style="border: 1px solid #ccc; border-radius: 6px"
           :style="{ margin: '20px', background: '#fff', minHeight: '220px' }"
         >
           <slot name="content"></slot>

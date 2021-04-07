@@ -128,5 +128,26 @@ chart -> chart[i]，
 * 返回
   * arrow-alt-from-left https://fontawesome.com/icons/arrow-alt-from-left?style=light
 
+## typeTable flag 标志
 
+```
+0 无标志
+1 新建
+2 最近使用
+```
 
+## 修复日志
+
+**2021-04-06**
+
+- 新增功能
+  - [x] 数据迁移：importDbFile, exportDbFile
+  - [ ] 修改阶数：在索引树界面的右上角会有一个输入框，用户可以在此修改索引树的阶数，主要使用changeDegree(val)方法。
+  - [ ] 当前界面的历史记录
+- 修复若干 BUG
+  - [x] 未填写表名可插入，重复表名可插入
+  - [x] 插入（修改）成功提示
+  - [x] 在主键列填入重复值
+  - [x] 表数据“未填写完整”和其他提示冲突
+- 待修复 BUG
+  - [ ] 报错时，仍然可以点击其他地方

@@ -1,10 +1,17 @@
 <template>
   <div class="container">
-    <Button type="text" @click="showHistory">
-      <svg class="icon"><use xlink:href="#history" /></svg>
-      历史记录
-    </Button>
-    <Tree />
+    <div class="control">
+      <Button type="text" @click="showHistory">
+        <svg class="icon"><use xlink:href="#history" /></svg>
+        历史记录
+      </Button>
+      <Select v-model="degree" @on-change="changeDegree">
+        <Option v-for="val in [3, 4, 5, 6, 7, 8, 9]" :value="val" :key="val">{{
+          val + "阶"
+        }}</Option>
+      </Select>
+    </div>
+    <Tree ref="tree" />
   </div>
 </template>
 
@@ -14,7 +21,9 @@ const { ipcRenderer } = require("electron");
 
 export default {
   data() {
-    return {};
+    return {
+      degree: 3,
+    };
   },
   components: {
     Tree: Tree,
@@ -22,6 +31,9 @@ export default {
   methods: {
     showHistory() {
       ipcRenderer.send("create-modal");
+    },
+    changeDegree(val) {
+      this.$refs.tree.changeDegree(val);
     },
   },
 };
@@ -32,9 +44,9 @@ export default {
   position: relative;
 }
 .control {
-  position: absolute;
-  display: flex;
-  left: 20px;
-  top: 20px;
+  display: grid;
+  margin-bottom: 20px;
+  grid-template-columns: 150px 70px;
+  justify-content: space-between;
 }
 </style>

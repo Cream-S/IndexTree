@@ -119,34 +119,28 @@ export default {
       if (this.errLine == -1) {
         let opVal;
         let idx;
-        if (typeof val !== "string") {
-          val = "" + val;
-        }
-        const spIdx = val.indexOf("$");
-        val = spIdx == -1 ? val : val.slice(spIdx + 1);
-        idx = this.data1.findIndex((o) => o[this.indexName] == val);
+        console.log("val" + val);
+        opVal = typeof val != "object" ? val : val[1];
+        idx = this.data1.findIndex((o) => o[this.indexName] == opVal);
         if (idx == -1) {
-          this.$Message.error(`找不到索引 ${val}`);
+          this.$Message.error(`找不到索引 ${opVal}`);
           return;
         } else {
           this.curline = idx;
         }
-        opVal = val;
-        const opObj = {};
-        opObj[this.indexName] = opVal;
         if (oprate == "delete") {
           // this.$store.commit("changeOperate", {
           //   type: "delete",
           //   val: opVal,
           // });
-
-          // todo: 从数据库删除
-          db[this.tableName].remove(opObj, {}, (err, doc) => {
+          // 从数据库删除
+          db[this.tableName].remove({ _id: opVal }, {}, (err, doc) => {
             if (doc > 0) {
               this.data1.splice(this.curline, 1);
               this.$Message.success(`已删除 ${opVal}`);
             } else {
-              this.$Message.error(`ERROR : 未删除 ${opVal}！`);
+              console.log(err, doc);
+              this.$Message.error(`ERROR : 未删除 ${opVal}！${err}`);
             }
           });
         } else if (oprate == "query") {
@@ -160,7 +154,7 @@ export default {
         } else {
         }
       } else if (this.errLine != this.curline) {
-        this.$Message.error(`第${this.errLine + 1}行未填写完整`);
+        // this.$Message.error(`第${this.errLine + 1}行未填写完整`);
       }
     },
     verifyColType(index, colName) {
@@ -230,47 +224,93 @@ export default {
       const row = this.data1[index];
       if (!this.verifyColType(index, key)) {
         this.$refs[index + key][0].focus();
-        return;
+        return false;
       }
-
-      // submit(data)
-      const ret = Object.keys(row).every((k) => {
-        return row[k] != "";
+      /* 判断插入时其他数据是否为空 */
+      let keys = Object.keys(row);
+      const hasEmpty = keys.some((k) => k != "_id" && "" + row[k] == "");
+      let that = this;
+      function handleEmpty() {
+        /* 自动聚焦其他有空位 */
+        for (let i = 0; i < keys.length; i++) {
+          if (row[keys[i]] == "") {
+            that.$refs[index + keys[i]][0].focus();
+            break;
+          }
+        }
+      }
+      /* 索引列修改 */
+      const oldVal = this.oldVal;
+      const newVal = row[key];
+      return new Promise((resolve) => {
+        if (oldVal != newVal) {
+          if (key == this.indexName) {
+            /* 检测主键唯一性 */
+            db[this.tableName].find({ _id: newVal }, {}, (err, list) => {
+              if (list.length > 0) {
+                this.$Message.error("请确保主键唯一");
+                this.$refs[index + key][0].focus();
+                resolve(false);
+              } else {
+                db[this.tableName].remove(
+                  { _id: oldVal },
+                  {},
+                  (err, deleteNum) => {
+                    var insertObj = row;
+                    insertObj._id = insertObj[this.indexName];
+                    db[this.tableName].insert(insertObj, (err, d) => {
+                      // 索引列失去焦点且值发生改变
+                      if (deleteNum == 0) {
+                        !hasEmpty && this.$Message.success("插入成功");
+                        this.$store.commit("changeOperate", {
+                          type: "insert",
+                          val: newVal,
+                        });
+                      } else {
+                        !hasEmpty && this.$Message.success("更新成功");
+                        this.$store.commit("changeOperate", {
+                          type: "update",
+                          val: [oldVal, newVal],
+                        });
+                      }
+                      hasEmpty && handleEmpty();
+                      resolve(!hasEmpty);
+                    });
+                  }
+                );
+              }
+            });
+          } else {
+            db[this.tableName].remove(
+              { _id: row._id },
+              {},
+              (err, deleteNum) => {
+                let insertObj = row;
+                insertObj._id = insertObj[this.indexName];
+                db[this.tableName].insert(insertObj, (err, d) => {
+                  hasEmpty
+                    ? handleEmpty()
+                    : this.$Message.success(
+                        deleteNum == 0 ? "插入成功" : "更新成功"
+                      );
+                  resolve(!hasEmpty);
+                });
+              }
+            );
+          }
+        } else {
+          hasEmpty && handleEmpty();
+          resolve(!hasEmpty);
+        }
       });
-      if (ret) {
-        let opObj = {};
-        const oldVal = (opObj[this.indexName] = this.data1[index]._id);
-        db[this.tableName].remove(opObj, {}, (err, deleteNum) => {
-          var insertObj = this.data1[index];
-          insertObj._id = insertObj[this.indexName];
-          db[this.tableName].insert(insertObj, (err, d) => {
-            // 索引列失去焦点且值发生改变
-            const newVal = this.data1[index][this.indexName];
-            if (deleteNum == 0) {
-              this.$store.commit("changeOperate", {
-                type: "insert",
-                val: newVal,
-              });
-            } else if (key == this.indexName && oldVal != newVal) {
-              this.$store.commit("changeOperate", {
-                type: "update",
-                val: oldVal + "$" + newVal,
-              });
-            }
-          });
-        });
-      }
-      return ret;
     },
     handleFocus(index, key) {
-      // 聚焦索引列时，索引树可能发生修改，记录oldVal
-      if (this.indexName == key) {
-        this.oldVal = this.data1[index][key];
-      }
+      // 记录任何 oldVal
+      this.oldVal = this.data1[index][key];
       // 如果有错误的行，并且聚焦了其他行，则失去焦点
       if (this.errLine != -1 && index != this.errLine) {
         this.$refs[index + key][0].blur();
-        this.$Message.error(`第${this.errLine + 1}行未填写完整`);
+        // this.$Message.error(`第${this.errLine + 1}行未填写完整`);
       }
     },
     handleEnter(index, key) {
@@ -297,7 +337,7 @@ export default {
           return;
         }
 
-        if (!this.handleEditSubmit(index, key)) {
+        if (!(await this.handleEditSubmit(index, key))) {
           this.errLine = index; // 记录提交错误的行
           this.$store.commit("changeErrLine", index);
         } else {
@@ -306,31 +346,8 @@ export default {
             this.errLine = -1; // 重置空缺行的行号
             this.$store.commit("changeErrLine", -1);
           }
-
-          // if (index == this.data1.length - 2) {
-          //   this.$emit(
-          //     "on-insert-into-tree",
-          //     this.data1[index][this.indexName]
-          //   );
-          // }
         }
       }
-
-      // // 索引列失去焦点且值发生改变
-      // const newVal = this.data1[index][key];
-      // if (key == this.indexName && newVal != this.oldVal) {
-      //   if (isAdd) {
-      //     this.$store.commit("changeOperate", {
-      //       type: "insert",
-      //       val: newVal,
-      //     });
-      //   } else {
-      //     this.$store.commit("changeOperate", {
-      //       type: "update",
-      //       val: this.oldVal + "$" + newVal,
-      //     });
-      //   }
-      // }
     },
     rowClassName(row, index) {
       if (index == this.errLine) {

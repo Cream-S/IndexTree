@@ -11,6 +11,7 @@ import 'view-design/dist/styles/iview.css';
 Vue.use(ViewUI);
 
 import './assets/custom.css';
+import './assets/custom.js'
 
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 Vue.http = Vue.prototype.$http = axios

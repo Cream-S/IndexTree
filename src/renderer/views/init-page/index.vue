@@ -1,12 +1,16 @@
 <template>
   <div>
     <Layout>
-      <Menu ref="myMenu" slot="sider" @on-show-build-table="showBuildTable" />
+      <Nav
+        slot="header"
+        @on-show-build-table="showBuildTable"
+        @on-update-db="$refs.myMenu.reload()"
+      />
+      <Menu ref="myMenu" slot="sider" />
       <existTable @on-drop-table="dropTable" slot="content" />
     </Layout>
     <Modal v-model="visible" fullscreen :closable="false" id="build-new-table">
       <Table
-        size="small"
         :columns="table.column"
         :data="table.data"
         @on-cell-click="selectPrimaryKey"
@@ -44,7 +48,6 @@
           <Button
             :disabled="table.data.length > 12"
             type="primary"
-            size="small"
             style="margin-right: 5px"
             @click="addRow(index)"
             >增加</Button
@@ -52,7 +55,6 @@
           <Button
             :disabled="table.data.length == 1"
             type="error"
-            size="small"
             @click="removeRow(index)"
             >删除</Button
           >
@@ -68,6 +70,7 @@
 <script>
 import Layout from "./components/Layout";
 import Menu from "./components/Menu";
+import Nav from "./components/Nav";
 import existTable from "./components/Table";
 import Datastore from "nedb";
 const fs = require("fs");
@@ -242,12 +245,11 @@ export default {
             h(
               "div",
               {
-                slot: "footer",
-                // style: {
-                //   display: "flex",
-                //   justifyContent: "flex-end",
-                //   marginTop: "20px",
-                // },
+                style: {
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  marginTop: "20px",
+                },
               },
               [
                 h(
@@ -270,13 +272,23 @@ export default {
                     on: {
                       click() {
                         that.$Modal.remove();
-                        const tbLength = that.table.name.trim().length;
+                        const origin = that.table.name.trim();
+                        const tbLength = origin.length;
                         if (tbLength == 0) {
-                          this.$Message.error("表名不能为空");
+                          that.$Message.error("表名不能为空");
                         } else if (tbLength > 10) {
-                          this.$Message.error("表名长度不超过10个字符");
+                          that.$Message.error("表名长度不超过10个字符");
                         } else {
-                          that.insertDb();
+                          db.typeTable.find({}, {}, (findErr, findList) => {
+                            let offset = 1,
+                              tbName = origin;
+                            while (
+                              findList.findIndex((_o) => _o._id == tbName) != -1
+                            ) {
+                              tbName = `${origin}(${offset++})`;
+                            }
+                            that.insertDb(tbName);
+                          });
                         }
                       },
                     },
@@ -289,7 +301,7 @@ export default {
         },
       });
     },
-    insertDb() {
+    insertDb(tableName) {
       this.$Spin.show({
         render: (h) => {
           return h("div", [
@@ -305,7 +317,6 @@ export default {
         },
       });
       const data = this.table.data;
-      const tableName = this.table.name;
       const primaryKey = data.find((row) => row.primaryKey).colName;
       db.typeTable.insert(
         {
@@ -372,6 +383,7 @@ export default {
     Layout,
     Menu,
     existTable,
+    Nav,
   },
 };
 </script>

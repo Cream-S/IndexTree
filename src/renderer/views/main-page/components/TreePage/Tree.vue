@@ -31,7 +31,7 @@ export default {
           this.showPath(newVal.val);
           break;
         case "update":
-          this.updateElement(...newVal.val.split("$"));
+          this.updateElement(...newVal.val);
       }
       if (newVal.type == "delete" || newVal.type == "query") {
       }
@@ -176,6 +176,18 @@ export default {
         }
       }
       this.draw();
+    },
+    changeDegree(val) {
+      this.tree.changeDegree(val);
+      db.typeTable.find({ _id: this.tableName }, (err, doc) => {
+        let indexName = doc[0].indexName;
+        db[this.tableName].find({}, (err, doc) => {
+          doc.forEach((o) => {
+            this.tree.insertElement(o[indexName]);
+          });
+          this.drawNewTree();
+        });
+      });
     },
   },
 };

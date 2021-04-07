@@ -2,6 +2,10 @@
     --color-link: #2d8cf0
 }
 
+* {
+  font-size: 18px !important;
+}
+
 .treepage-cmd .ivu-cell-main {
     display: block;
 }
@@ -24,4 +28,9 @@
     vertical-align: middle;
     fill: currentColor;
     overflow: hidden;
+}
+
+/* 隐藏创建表格的对话框的底部按钮 */
+.ivu-modal-confirm-body-render + .ivu-modal-confirm-footer{
+  display: none;
 }

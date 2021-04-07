@@ -98,35 +98,42 @@ export default {
         {
           title: "列名",
           key: "colName",
+          align: "center",
         },
         {
           title: "数据类型",
           key: "colType",
+          align: "center",
         },
         {
           title: "长度",
           key: "length",
           slot: "length",
+          align: "center",
         },
         {
           title: "聚集索引",
           key: "indexName",
           slot: "indexName",
+          align: "center",
         },
         {
           title: "主键", //约束
           key: "primaryKey",
           slot: "primaryKey",
+          align: "center",
         },
         {
           title: "Not Null", //约束
           key: "notNull",
           slot: "notNull",
+          align: "center",
         },
         {
           title: "Unique", //约束
           key: "unique",
           slot: "unique",
+          align: "center",
         },
       ],
       tableData: [],

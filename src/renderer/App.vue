@@ -16,5 +16,10 @@ export default {
 </script>
 
 <style>
-/* CSS */
+#app {
+  min-height: 100vh;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  font-family: Verdana, "微软雅黑", "sans-serif";
+}
 </style>
