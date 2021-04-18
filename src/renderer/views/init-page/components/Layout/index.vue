@@ -5,7 +5,7 @@
         <slot name="header"></slot>
       </Header>
       <Layout>
-        <Sider style="overflow-y: scroll">
+        <Sider class="layout-sider">
           <slot name="sider"></slot>
         </Sider>
         <Content
@@ -34,5 +34,9 @@ export default {};
 .layout-header-bar {
   background: #fff;
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+.layout-sider {
+  overflow-y: scroll;
+  overflow-x: hidden;
 }
 </style>

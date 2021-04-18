@@ -183,8 +183,8 @@ export default {
       }
     },
     updateDbList() {
-      db.typeTable.find({}, {}, (err, list) => {
-        this.dbList = list;
+      db.typeTable.find({}, (err, doc) => {
+        this.dbList = doc;
       });
     },
   },

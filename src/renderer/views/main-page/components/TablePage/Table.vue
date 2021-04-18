@@ -246,8 +246,8 @@ export default {
         if (oldVal != newVal) {
           if (key == this.indexName) {
             /* 检测主键唯一性 */
-            db[this.tableName].find({ _id: newVal }, {}, (err, list) => {
-              if (list.length > 0) {
+            db[this.tableName].find({ _id: newVal }, {}, (err, doc) => {
+              if (doc.length > 0) {
                 this.$Message.error("请确保主键唯一");
                 this.$refs[index + key][0].focus();
                 resolve(false);

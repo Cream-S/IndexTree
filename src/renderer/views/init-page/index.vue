@@ -226,6 +226,7 @@ export default {
     },
     addTableName() {
       let that = this;
+      this.table.name = "";
       this.$Modal.confirm({
         render: (h) => {
           return h("div", [
@@ -279,11 +280,11 @@ export default {
                         } else if (tbLength > 10) {
                           that.$Message.error("表名长度不超过10个字符");
                         } else {
-                          db.typeTable.find({}, {}, (findErr, findList) => {
+                          db.typeTable.find({}, {}, (findErr, doc) => {
                             let offset = 1,
                               tbName = origin;
                             while (
-                              findList.findIndex((_o) => _o._id == tbName) != -1
+                              doc.findIndex((_o) => _o._id == tbName) != -1
                             ) {
                               tbName = `${origin}(${offset++})`;
                             }
@@ -347,7 +348,6 @@ export default {
             autoload: true,
           });
           this.$store.commit("changeTableName", tableName);
-          this.$refs.myMenu.reload();
           this.$Spin.hide();
         }
       );
@@ -369,11 +369,9 @@ export default {
       });
       const tableName = this.$store.state.Global.tableName;
       db.typeTable.remove({ _id: tableName }, (err, num) => {
-        console.log(num);
         fs.unlink(path.join(__static, `${tableName}.db`), (err) => {});
         delete db[tableName];
-        this.$store.commit("changeTableName", "学生表");
-        this.$refs.myMenu.reload();
+        this.$store.commit("changeTableName", "");
         this.$Spin.hide();
         this.$Message.success("删除成功！");
       });

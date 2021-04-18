@@ -47,8 +47,12 @@ export default {
 
       // 插入初始化数据
       await init();
-      console.log("jump");
-
+      db.typeTable.find({ flag: 2 }, {}, (e, l) => {
+        console.log(l);
+        if (l.length > 0) {
+          this.$store.commit("changeTableName", l[0]._id);
+        }
+      });
       this.$router.push({
         name: "init-page",
         params: { ts: new Date().valueOf() },

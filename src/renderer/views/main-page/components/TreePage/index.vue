@@ -5,11 +5,17 @@
         <svg class="icon"><use xlink:href="#history" /></svg>
         历史记录
       </Button>
-      <Select v-model="degree" @on-change="changeDegree">
-        <Option v-for="val in [3, 4, 5, 6, 7, 8, 9]" :value="val" :key="val">{{
-          val + "阶"
-        }}</Option>
-      </Select>
+      <div style="display: flex; align-items: center">
+        <div style="flex: 0 0 100px">当前阶数：</div>
+        <Select v-model="degree" @on-change="changeDegree">
+          <Option
+            v-for="val in [3, 4, 5, 6, 7, 8, 9]"
+            :value="val"
+            :key="val"
+            >{{ val + "阶" }}</Option
+          >
+        </Select>
+      </div>
     </div>
     <Tree ref="tree" />
   </div>
@@ -46,7 +52,7 @@ export default {
 .control {
   display: grid;
   margin-bottom: 20px;
-  grid-template-columns: 150px 70px;
+  grid-template-columns: 150px 170px;
   justify-content: space-between;
 }
 </style>
